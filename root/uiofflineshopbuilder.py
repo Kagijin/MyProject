@@ -206,12 +206,12 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			self.GetChild("ItemSlot2").SetOverInItemEvent(ui.__mem_func__(self.OnOverInItemNew))
 			self.GetChild("ItemSlot2").SetOverOutItemEvent(ui.__mem_func__(self.OnOverOutItem))
 
-			self.GetChild("title_back_btn").SetEvent(ui.__mem_func__(self.TitleBack))
-			self.GetChild("title_next_btn").SetEvent(ui.__mem_func__(self.TitleNext))
-			self.GetChild("shop_back_btn").SetEvent(ui.__mem_func__(self.ShopBack))
-			self.GetChild("shop_next_btn").SetEvent(ui.__mem_func__(self.ShopNext))
-			self.GetChild("shop_back_btn").Hide()
-			self.GetChild("title_back_btn").Hide()
+			self.__SetOptionalButtonEvent("title_back_btn", self.TitleBack)
+			self.__SetOptionalButtonEvent("title_next_btn", self.TitleNext)
+			self.__SetOptionalButtonEvent("shop_back_btn", self.ShopBack)
+			self.__SetOptionalButtonEvent("shop_next_btn", self.ShopNext)
+			self.__SetOptionalButtonVisible("shop_back_btn", False)
+			self.__SetOptionalButtonVisible("title_back_btn", False)
 
 			renderTarget.SetBackground(1, "d:/ymir work/ui/game/myshop_deco/model_view_bg.sub")
 			renderTarget.SetVisibility(1, True)
@@ -242,10 +242,10 @@ class OfflineShopBuilder(ui.ScriptWindow):
 
 		self.shopVnum = 0
 		self.shopTitle = 0
-		self.GetChild("shop_back_btn").Hide()
-		self.GetChild("shop_next_btn").Show()
-		self.GetChild("title_back_btn").Hide()
-		self.GetChild("title_next_btn").Show()
+		self.__SetOptionalButtonVisible("shop_back_btn", False)
+		self.__SetOptionalButtonVisible("shop_next_btn", True)
+		self.__SetOptionalButtonVisible("title_back_btn", False)
+		self.__SetOptionalButtonVisible("title_next_btn", True)
 
 		self.SetYang(0, True)
 		self.Refresh()
@@ -543,27 +543,27 @@ class OfflineShopBuilder(ui.ScriptWindow):
 		if self.shopTitle <= 0:
 			return
 		self.shopTitle -= 1
-		self.GetChild("title_next_btn").Show()
+		self.__SetOptionalButtonVisible("title_next_btn", True)
 		if self.shopTitle == 0:
-			self.GetChild("title_back_btn").Hide()
+			self.__SetOptionalButtonVisible("title_back_btn", False)
 		self.ChangeThinboard(self.shopTitle)
 
 	def TitleNext(self):
 		if self.shopTitle+1  == constInfo.MAX_SHOP_TITLE:
 			return
 		self.shopTitle += 1
-		self.GetChild("title_back_btn").Show()
+		self.__SetOptionalButtonVisible("title_back_btn", True)
 		if self.shopTitle+1  == constInfo.MAX_SHOP_TITLE:
-			self.GetChild("title_next_btn").Hide()
+			self.__SetOptionalButtonVisible("title_next_btn", False)
 		self.ChangeThinboard(self.shopTitle)
 
 	def ShopBack(self):
 		if self.shopVnum <= 0:
 			return
 		self.shopVnum -= 1
-		self.GetChild("shop_next_btn").Show()
+		self.__SetOptionalButtonVisible("shop_next_btn", True)
 		if self.shopVnum == 0:
-			self.GetChild("shop_back_btn").Hide()
+			self.__SetOptionalButtonVisible("shop_back_btn", False)
 		#renderTarget.ResetModel(1)
 		renderTarget.SelectModel(1, (30000+self.shopVnum))
 		renderTarget.SetVisibility(1, True)
@@ -572,9 +572,23 @@ class OfflineShopBuilder(ui.ScriptWindow):
 		if self.shopVnum+1  == constInfo.MAX_SHOP_TYPE:
 			return
 		self.shopVnum += 1
-		self.GetChild("shop_back_btn").Show()
+		self.__SetOptionalButtonVisible("shop_back_btn", True)
 		if self.shopVnum+1  == constInfo.MAX_SHOP_TYPE:
-			self.GetChild("shop_next_btn").Hide()
+			self.__SetOptionalButtonVisible("shop_next_btn", False)
 		#renderTarget.ResetModel(1)
 		renderTarget.SelectModel(1, (30000+self.shopVnum))
 		renderTarget.SetVisibility(1, True)
+
+	def __SetOptionalButtonEvent(self, name, event):
+		button = self.GetChild2(name)
+		if button:
+			button.SetEvent(ui.__mem_func__(event))
+
+	def __SetOptionalButtonVisible(self, name, isVisible):
+		button = self.GetChild2(name)
+		if not button:
+			return
+		if isVisible:
+			button.Show()
+		else:
+			button.Hide()
