@@ -532,15 +532,7 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			self.thinboard = ui.ThinBoardNorm()
 		else:
 			self.thinboard = ui.ThinBoard()
-		try:
-			self.thinboard.__init__("UI_BOTTOM",index)
-		except TypeError:
-			try:
-				self.thinboard.__init__("UI_BOTTOM")
-			except TypeError:
-				self.thinboard.__init__()
-			if hasattr(self.thinboard, "SetBoard"):
-				self.thinboard.SetBoard(index)
+		self.thinboard.__init__("UI_BOTTOM",index)
 		self.thinboard.SetParent(self.GetChild("RenderTarget"))
 		t_position = [[34,23],[25,10],[25,10],[25,10],[25,10],[25,10]]
 		self.thinboard.SetPosition(t_position[index][0],t_position[index][1])
