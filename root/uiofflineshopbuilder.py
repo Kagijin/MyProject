@@ -213,8 +213,8 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			self.__SetOptionalButtonVisible("shop_back_btn", False)
 			self.__SetOptionalButtonVisible("title_back_btn", False)
 
-			renderTarget.SetBackground(1, "d:/ymir work/ui/game/myshop_deco/model_view_bg.sub")
-			renderTarget.SetVisibility(1, True)
+			self.__RenderTargetSetBackground(1, "d:/ymir work/ui/game/myshop_deco/model_view_bg.sub")
+			self.__RenderTargetSetVisibility(1, True)
 		except:
 			exception.Abort("OfflineShopBuilderWindow.LoadWindow.LoadObject")
 
@@ -261,7 +261,7 @@ class OfflineShopBuilder(ui.ScriptWindow):
 	def Close(self):
 		global shop_all_Money
 		shop_all_Money = 0
-		renderTarget.SetVisibility(1,False)
+		self.__RenderTargetSetVisibility(1,False)
 		shop.ClearOfflineShopStock()
 		if self.priceInputBoard:
 			self.priceInputBoard.Close()
@@ -302,8 +302,8 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			ptr.RefreshSlot()
 		self.ChangeThinboard(self.shopTitle)
 		#renderTarget.ResetModel(1)
-		renderTarget.SelectModel(1, (30000+self.shopVnum))
-		renderTarget.SetVisibility(1, True)
+		self.__RenderTargetSelectModel(1, (30000+self.shopVnum))
+		self.__RenderTargetSetVisibility(1, True)
 
 	def OnSelectEmptySlot(self, selectedSlotPos):
 		isAttached = mouseModule.mouseController.isAttached()
@@ -565,8 +565,8 @@ class OfflineShopBuilder(ui.ScriptWindow):
 		if self.shopVnum == 0:
 			self.__SetOptionalButtonVisible("shop_back_btn", False)
 		#renderTarget.ResetModel(1)
-		renderTarget.SelectModel(1, (30000+self.shopVnum))
-		renderTarget.SetVisibility(1, True)
+		self.__RenderTargetSelectModel(1, (30000+self.shopVnum))
+		self.__RenderTargetSetVisibility(1, True)
 
 	def ShopNext(self):
 		if self.shopVnum+1  == constInfo.MAX_SHOP_TYPE:
@@ -576,8 +576,23 @@ class OfflineShopBuilder(ui.ScriptWindow):
 		if self.shopVnum+1  == constInfo.MAX_SHOP_TYPE:
 			self.__SetOptionalButtonVisible("shop_next_btn", False)
 		#renderTarget.ResetModel(1)
-		renderTarget.SelectModel(1, (30000+self.shopVnum))
-		renderTarget.SetVisibility(1, True)
+		self.__RenderTargetSelectModel(1, (30000+self.shopVnum))
+		self.__RenderTargetSetVisibility(1, True)
+
+	def __RenderTargetSetBackground(self, index, path):
+		setBackground = getattr(renderTarget, "SetBackground", None)
+		if callable(setBackground):
+			setBackground(index, path)
+
+	def __RenderTargetSetVisibility(self, index, flag):
+		setVisibility = getattr(renderTarget, "SetVisibility", None)
+		if callable(setVisibility):
+			setVisibility(index, flag)
+
+	def __RenderTargetSelectModel(self, index, vnum):
+		selectModel = getattr(renderTarget, "SelectModel", None)
+		if callable(selectModel):
+			selectModel(index, vnum)
 
 	def __SetOptionalButtonEvent(self, name, event):
 		button = self.GetChild2(name)
