@@ -580,16 +580,19 @@ class OfflineShopBuilder(ui.ScriptWindow):
 		self.__RenderTargetSetVisibility(1, True)
 
 	def __RenderTargetSetBackground(self, index, path):
-		if hasattr(renderTarget, "SetBackground"):
-			renderTarget.SetBackground(index, path)
+		setBackground = getattr(renderTarget, "SetBackground", None)
+		if callable(setBackground):
+			setBackground(index, path)
 
 	def __RenderTargetSetVisibility(self, index, flag):
-		if hasattr(renderTarget, "SetVisibility"):
-			renderTarget.SetVisibility(index, flag)
+		setVisibility = getattr(renderTarget, "SetVisibility", None)
+		if callable(setVisibility):
+			setVisibility(index, flag)
 
 	def __RenderTargetSelectModel(self, index, vnum):
-		if hasattr(renderTarget, "SelectModel"):
-			renderTarget.SelectModel(index, vnum)
+		selectModel = getattr(renderTarget, "SelectModel", None)
+		if callable(selectModel):
+			selectModel(index, vnum)
 
 	def __SetOptionalButtonEvent(self, name, event):
 		button = self.GetChild2(name)
