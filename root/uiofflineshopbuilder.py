@@ -526,13 +526,26 @@ class OfflineShopBuilder(ui.ScriptWindow):
 	def ChangeThinboard(self, index):
 		if self.thinboard:
 			self.thinboard.Destroy()
-			del self.thinboard
-			self.thinboard =None
-		if hasattr(ui, "ThinBoardNorm"):
-			self.thinboard = ui.ThinBoardNorm()
-		else:
-			self.thinboard = ui.ThinBoard()
-		self.thinboard.__init__("UI_BOTTOM",index)
+			self.thinboard = None
+
+		boardClass = ui.ThinBoardNorm if hasattr(ui, "ThinBoardNorm") else ui.ThinBoard
+		self.thinboard = None
+		for args in (("UI_BOTTOM", index), ("UI_BOTTOM",), ()):
+			try:
+				self.thinboard = boardClass(*args)
+				break
+			except TypeError:
+				pass
+
+		if not self.thinboard:
+			return
+
+		if hasattr(self.thinboard, "SetBoard"):
+			try:
+				self.thinboard.SetBoard(index)
+			except TypeError:
+				pass
+
 		self.thinboard.SetParent(self.GetChild("RenderTarget"))
 		t_position = [[34,23],[25,10],[25,10],[25,10],[25,10],[25,10]]
 		self.thinboard.SetPosition(t_position[index][0],t_position[index][1])
