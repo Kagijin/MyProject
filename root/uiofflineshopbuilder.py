@@ -206,15 +206,15 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			self.GetChild("ItemSlot2").SetOverInItemEvent(ui.__mem_func__(self.OnOverInItemNew))
 			self.GetChild("ItemSlot2").SetOverOutItemEvent(ui.__mem_func__(self.OnOverOutItem))
 
-			self.GetChild("title_back_btn").SetEvent(ui.__mem_func__(self.TitleBack))
-			self.GetChild("title_next_btn").SetEvent(ui.__mem_func__(self.TitleNext))
-			self.GetChild("shop_back_btn").SetEvent(ui.__mem_func__(self.ShopBack))
-			self.GetChild("shop_next_btn").SetEvent(ui.__mem_func__(self.ShopNext))
-			self.GetChild("shop_back_btn").Hide()
-			self.GetChild("title_back_btn").Hide()
+			self.__SetOptionalButtonEvent("title_back_btn", self.TitleBack)
+			self.__SetOptionalButtonEvent("title_next_btn", self.TitleNext)
+			self.__SetOptionalButtonEvent("shop_back_btn", self.ShopBack)
+			self.__SetOptionalButtonEvent("shop_next_btn", self.ShopNext)
+			self.__SetOptionalButtonVisible("shop_back_btn", False)
+			self.__SetOptionalButtonVisible("title_back_btn", False)
 
-			renderTarget.SetBackground(1, "d:/ymir work/ui/game/myshop_deco/model_view_bg.sub")
-			renderTarget.SetVisibility(1, True)
+			self.__RenderTargetSetBackground(1, "d:/ymir work/ui/game/myshop_deco/model_view_bg.sub")
+			self.__RenderTargetSetVisibility(1, True)
 		except:
 			exception.Abort("OfflineShopBuilderWindow.LoadWindow.LoadObject")
 
@@ -242,10 +242,10 @@ class OfflineShopBuilder(ui.ScriptWindow):
 
 		self.shopVnum = 0
 		self.shopTitle = 0
-		self.GetChild("shop_back_btn").Hide()
-		self.GetChild("shop_next_btn").Show()
-		self.GetChild("title_back_btn").Hide()
-		self.GetChild("title_next_btn").Show()
+		self.__SetOptionalButtonVisible("shop_back_btn", False)
+		self.__SetOptionalButtonVisible("shop_next_btn", True)
+		self.__SetOptionalButtonVisible("title_back_btn", False)
+		self.__SetOptionalButtonVisible("title_next_btn", True)
 
 		self.SetYang(0, True)
 		self.Refresh()
@@ -261,7 +261,7 @@ class OfflineShopBuilder(ui.ScriptWindow):
 	def Close(self):
 		global shop_all_Money
 		shop_all_Money = 0
-		renderTarget.SetVisibility(1,False)
+		self.__RenderTargetSetVisibility(1,False)
 		shop.ClearOfflineShopStock()
 		if self.priceInputBoard:
 			self.priceInputBoard.Close()
@@ -302,8 +302,8 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			ptr.RefreshSlot()
 		self.ChangeThinboard(self.shopTitle)
 		#renderTarget.ResetModel(1)
-		renderTarget.SelectModel(1, (30000+self.shopVnum))
-		renderTarget.SetVisibility(1, True)
+		self.__RenderTargetSelectModel(1, (30000+self.shopVnum))
+		self.__RenderTargetSetVisibility(1, True)
 
 	def OnSelectEmptySlot(self, selectedSlotPos):
 		isAttached = mouseModule.mouseController.isAttached()
@@ -529,10 +529,18 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			del self.thinboard
 			self.thinboard =None
 		if hasattr(ui, "ThinBoardNorm"):
-			self.board = ui.ThinBoardNorm()
+			self.thinboard = ui.ThinBoardNorm()
 		else:
-			self.board = ui.ThinBoard()
-		self.thinboard.__init__("UI_BOTTOM",index)
+			self.thinboard = ui.ThinBoard()
+		try:
+			self.thinboard.__init__("UI_BOTTOM",index)
+		except TypeError:
+			try:
+				self.thinboard.__init__("UI_BOTTOM")
+			except TypeError:
+				self.thinboard.__init__()
+			if hasattr(self.thinboard, "SetBoard"):
+				self.thinboard.SetBoard(index)
 		self.thinboard.SetParent(self.GetChild("RenderTarget"))
 		t_position = [[34,23],[25,10],[25,10],[25,10],[25,10],[25,10]]
 		self.thinboard.SetPosition(t_position[index][0],t_position[index][1])
@@ -543,38 +551,67 @@ class OfflineShopBuilder(ui.ScriptWindow):
 		if self.shopTitle <= 0:
 			return
 		self.shopTitle -= 1
-		self.GetChild("title_next_btn").Show()
+		self.__SetOptionalButtonVisible("title_next_btn", True)
 		if self.shopTitle == 0:
-			self.GetChild("title_back_btn").Hide()
+			self.__SetOptionalButtonVisible("title_back_btn", False)
 		self.ChangeThinboard(self.shopTitle)
 
 	def TitleNext(self):
 		if self.shopTitle+1  == constInfo.MAX_SHOP_TITLE:
 			return
 		self.shopTitle += 1
-		self.GetChild("title_back_btn").Show()
+		self.__SetOptionalButtonVisible("title_back_btn", True)
 		if self.shopTitle+1  == constInfo.MAX_SHOP_TITLE:
-			self.GetChild("title_next_btn").Hide()
+			self.__SetOptionalButtonVisible("title_next_btn", False)
 		self.ChangeThinboard(self.shopTitle)
 
 	def ShopBack(self):
 		if self.shopVnum <= 0:
 			return
 		self.shopVnum -= 1
-		self.GetChild("shop_next_btn").Show()
+		self.__SetOptionalButtonVisible("shop_next_btn", True)
 		if self.shopVnum == 0:
-			self.GetChild("shop_back_btn").Hide()
+			self.__SetOptionalButtonVisible("shop_back_btn", False)
 		#renderTarget.ResetModel(1)
-		renderTarget.SelectModel(1, (30000+self.shopVnum))
-		renderTarget.SetVisibility(1, True)
+		self.__RenderTargetSelectModel(1, (30000+self.shopVnum))
+		self.__RenderTargetSetVisibility(1, True)
 
 	def ShopNext(self):
 		if self.shopVnum+1  == constInfo.MAX_SHOP_TYPE:
 			return
 		self.shopVnum += 1
-		self.GetChild("shop_back_btn").Show()
+		self.__SetOptionalButtonVisible("shop_back_btn", True)
 		if self.shopVnum+1  == constInfo.MAX_SHOP_TYPE:
-			self.GetChild("shop_next_btn").Hide()
+			self.__SetOptionalButtonVisible("shop_next_btn", False)
 		#renderTarget.ResetModel(1)
-		renderTarget.SelectModel(1, (30000+self.shopVnum))
-		renderTarget.SetVisibility(1, True)
+		self.__RenderTargetSelectModel(1, (30000+self.shopVnum))
+		self.__RenderTargetSetVisibility(1, True)
+
+	def __RenderTargetSetBackground(self, index, path):
+		setBackground = getattr(renderTarget, "SetBackground", None)
+		if callable(setBackground):
+			setBackground(index, path)
+
+	def __RenderTargetSetVisibility(self, index, flag):
+		setVisibility = getattr(renderTarget, "SetVisibility", None)
+		if callable(setVisibility):
+			setVisibility(index, flag)
+
+	def __RenderTargetSelectModel(self, index, vnum):
+		selectModel = getattr(renderTarget, "SelectModel", None)
+		if callable(selectModel):
+			selectModel(index, vnum)
+
+	def __SetOptionalButtonEvent(self, name, event):
+		button = self.GetChild2(name)
+		if button:
+			button.SetEvent(ui.__mem_func__(event))
+
+	def __SetOptionalButtonVisible(self, name, isVisible):
+		button = self.GetChild2(name)
+		if not button:
+			return
+		if isVisible:
+			button.Show()
+		else:
+			button.Hide()
