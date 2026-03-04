@@ -529,9 +529,9 @@ class OfflineShopBuilder(ui.ScriptWindow):
 			del self.thinboard
 			self.thinboard =None
 		if hasattr(ui, "ThinBoardNorm"):
-			self.board = ui.ThinBoardNorm()
+			self.thinboard = ui.ThinBoardNorm()
 		else:
-			self.board = ui.ThinBoard()
+			self.thinboard = ui.ThinBoard()
 		self.thinboard.__init__("UI_BOTTOM",index)
 		self.thinboard.SetParent(self.GetChild("RenderTarget"))
 		t_position = [[34,23],[25,10],[25,10],[25,10],[25,10],[25,10]]
